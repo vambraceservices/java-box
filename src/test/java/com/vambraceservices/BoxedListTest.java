@@ -1,9 +1,5 @@
 package com.vambraceservices;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Wither;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +36,7 @@ public class BoxedListTest {
 
     List<String> valid = Boxed
         .of(container)
-        .toList(TestListContainer::getContainedList)
+        .mapList(TestListContainer::getContainedList)
         .get();
 
     // then (list has values)
@@ -51,7 +47,7 @@ public class BoxedListTest {
 
     List<String> invalid = Boxed
         .of(container)
-        .toList(TestListContainer::getNullList)
+        .mapList(TestListContainer::getNullList)
         .get();
 
     // then (list has values)
@@ -62,7 +58,7 @@ public class BoxedListTest {
 
     List<String> linkedValid = Boxed
         .of(container)
-        .toList(TestListContainer::getContainedList)
+        .mapList(TestListContainer::getContainedList)
         .get(LinkedList::new);
 
     // then (list has values)
@@ -77,7 +73,7 @@ public class BoxedListTest {
 
     Optional<String> firstItem = Boxed
         .of(container)
-        .toList(TestListContainer::getContainedList)
+        .mapList(TestListContainer::getContainedList)
         .first();
 
     // then
@@ -88,7 +84,7 @@ public class BoxedListTest {
 
     Optional<String> noItem = Boxed
         .of(container)
-        .toList(TestListContainer::getNullList)
+        .mapList(TestListContainer::getNullList)
         .first();
 
     // then
@@ -101,7 +97,7 @@ public class BoxedListTest {
 
     int size = Boxed
         .of(container)
-        .toList(TestListContainer::getContainedList)
+        .mapList(TestListContainer::getContainedList)
         .size();
 
     // then
@@ -114,7 +110,7 @@ public class BoxedListTest {
 
     List<Integer> empty = Boxed
         .of(container)
-        .toList(TestListContainer::getNullList)
+        .mapList(TestListContainer::getNullList)
         .stream()
         .map(String::length)
         .collect(Collectors.toList());
@@ -127,7 +123,7 @@ public class BoxedListTest {
 
     List<Integer> valid = Boxed
         .of(container)
-        .toList(TestListContainer::getContainedList)
+        .mapList(TestListContainer::getContainedList)
         .stream()
         .map(String::length)
         .collect(Collectors.toList());
@@ -136,14 +132,22 @@ public class BoxedListTest {
 
   }
 
-  @Data
-  @Wither
-  @AllArgsConstructor
-  @NoArgsConstructor
   private class TestListContainer<T> {
     private List<T> containedList;
     private List<T> nullList;
-    private String  containedValue;
+    private String containedValue;
+
+    public List<T> getContainedList() {
+      return containedList;
+    }
+
+    public void setContainedList(List<T> containedList) {
+      this.containedList = containedList;
+    }
+
+    public List<T> getNullList() {
+      return nullList;
+    }
   }
 
 }

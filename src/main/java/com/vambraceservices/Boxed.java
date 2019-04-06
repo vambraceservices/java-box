@@ -1,12 +1,12 @@
 package com.vambraceservices;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.Consumer;
 
 public final class Boxed<T> {
 
@@ -82,7 +82,7 @@ public final class Boxed<T> {
    */
 
   public Boxed<T> filter(Predicate<T> selector) {
-    return this.to(selector, v -> v);
+    return this.map(selector, v -> v);
   }
 
   /**
@@ -92,8 +92,8 @@ public final class Boxed<T> {
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> Boxed<R> to(Function<T, R> function, Supplier<R> alternative) {
-    return this.to(v -> true, function, alternative);
+  public <R> Boxed<R> map(Function<T, R> function, Supplier<R> alternative) {
+    return this.map(v -> true, function, alternative);
   }
 
   /**
@@ -102,8 +102,28 @@ public final class Boxed<T> {
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> Boxed<R> to(Function<T, R> function) {
-    return this.to(v -> true, function);
+  public <R> Boxed<R> map(Function<T, R> function) {
+    return this.map(v -> true, function);
+  }
+
+  /**
+   * @param <R> - the returned inner type
+   * @param function to execute on inner value
+   * @return new instance of Boxed with either new value or empty
+   */
+
+  public <R> Boxed<R> omap(Function<T, Optional<R>> function) {
+    return this.map(function).map(Optional::isPresent, Optional::get);
+  }
+
+  /**
+   * @param <R> - the returned inner type
+   * @param function to execute on inner value
+   * @return new instance of Boxed with either new value or empty
+   */
+
+  public <R> Boxed<R> flatmap(Function<T, Boxed<R>> function) {
+    return this.map(function).map(Boxed::isNotEmpty, Boxed::get).omap(optional -> optional);
   }
 
   /**
@@ -113,8 +133,8 @@ public final class Boxed<T> {
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> Boxed<R> to(Predicate<T> selector, Function<T, R> function) {
-    return this.to(selector, function, () -> null);
+  public <R> Boxed<R> map(Predicate<T> selector, Function<T, R> function) {
+    return this.map(selector, function, () -> null);
   }
 
   /**
@@ -125,7 +145,7 @@ public final class Boxed<T> {
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> Boxed<R> to(Predicate<T> selector, Function<T, R> function, Supplier<R> supplier) {
+  public <R> Boxed<R> map(Predicate<T> selector, Function<T, R> function, Supplier<R> supplier) {
     if (!this.isEmpty() && selector.test(this.value)) {
       return new Boxed<>(function.apply(this.value));
     } else if (Objects.nonNull(supplier)) {
@@ -135,13 +155,26 @@ public final class Boxed<T> {
   }
 
   /**
+   * @param selector - to determine if current inner value is valid
+   * @param alternative - to supply allternative value if it is not valid
+   * @return new instance of Boxed with either new value or empty
+   */
+
+  public Boxed<T> or(Predicate<T> selector, Supplier<T> alternative) {
+    if (selector.test(this.value)) {
+      return this;
+    }
+    return new Boxed<>(alternative.get());
+  }
+
+  /**
    * @param <R> - the returned inner type
    * @param function - to call on valid inner value. Will return list
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> BoxedList<R> toList(Function<T, List<R>> function) {
-    return this.toList(v -> true, function);
+  public <R> BoxedList<R> mapList(Function<T, Collection<R>> function) {
+    return this.mapList(v -> true, function);
   }
 
   /**
@@ -151,7 +184,7 @@ public final class Boxed<T> {
    * @return new instance of Boxed with either new value or empty
    */
 
-  public <R> BoxedList<R> toList(Predicate<T> selector, Function<T, List<R>> function) {
+  public <R> BoxedList<R> mapList(Predicate<T> selector, Function<T, Collection<R>> function) {
     if (this.isNotEmpty() && selector.test(this.value)) {
       return new BoxedList<>(function.apply(this.value));
     }

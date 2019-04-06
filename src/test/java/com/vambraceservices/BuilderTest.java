@@ -1,7 +1,5 @@
 package com.vambraceservices;
 
-import lombok.Data;
-import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,19 +8,40 @@ import java.util.List;
 
 public class BuilderTest {
 
-  @Data
   public static class TestClass {
     private TestInnerClass testValue;
+
+    public TestInnerClass getTestValue() {
+      return testValue;
+    }
+
+    public void setTestValue(TestInnerClass testValue) {
+      this.testValue = testValue;
+    }
   }
 
-  @Data
   public static class TestInnerClass {
     private TestInnerInnerClass innerValue;
+
+    public TestInnerInnerClass getInnerValue() {
+      return innerValue;
+    }
+
+    public void setInnerValue(TestInnerInnerClass innerValue) {
+      this.innerValue = innerValue;
+    }
   }
 
-  @Data
   public static class TestInnerInnerClass {
     private List<String> innerInnerValue;
+
+    public List<String> getInnerInnerValue() {
+      return innerInnerValue;
+    }
+
+    public void setInnerInnerValue(List<String> innerInnerValue) {
+      this.innerInnerValue = innerInnerValue;
+    }
   }
 
   @Test
@@ -32,7 +51,7 @@ public class BuilderTest {
     TestClass testClass = new TestClass();
 
     // when
-    val innerInner = Builder.of(testClass, TestClass::new)
+    List<String> innerInner = Builder.of(testClass)
         .with(TestClass::getTestValue, t -> t::setTestValue, TestInnerClass::new)
         .with(TestInnerClass::getInnerValue, t-> t::setInnerValue, TestInnerInnerClass::new)
         .with(TestInnerInnerClass::getInnerInnerValue, t-> t::setInnerInnerValue, ArrayList::new)

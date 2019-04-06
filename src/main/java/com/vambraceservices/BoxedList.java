@@ -1,10 +1,6 @@
 package com.vambraceservices;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -16,15 +12,15 @@ import java.util.stream.Stream;
 
 public class BoxedList<L> {
 
-  private List<L> listValue;
+  private Collection<L> listValue;
 
   /**
    * @param lv - value to be stored
    */
 
-  BoxedList(List<L> lv) {
+  BoxedList(Collection<L> lv) {
     if (Objects.nonNull(lv)) {
-      this.listValue = Collections.unmodifiableList(lv);
+      this.listValue = Collections.unmodifiableCollection(lv);
     }
   }
 
